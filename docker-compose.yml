@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: todo_api_development
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && rails server -b 0.0.0.0"
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      RAILS_ENV: ${RAILS_ENV}
+    depends_on:
+      - db
+
+volumes:
+  db-data:
